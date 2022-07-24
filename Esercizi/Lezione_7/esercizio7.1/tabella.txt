@@ -1,0 +1,13 @@
+Metodo di integrazione alla Simpson: valutazione dell'errore al crescere del numero di passi
+
+nstep:		Integrale:		discrepanza:
+
+10		2.00010951732		1.095173150043e-04
+100		2.00000001082		1.082450351575e-08
+1000		2.00000000000		1.081801315195e-12
+10000		2.00000000000		3.330669073875e-15
+100000		2.00000000000		8.659739592076e-15
+1000000		2.00000000000		4.707345624411e-14
+
+
+L'integrale definito da 0 a Pi greco è pari a: 2

@@ -1,0 +1,13 @@
+Metodo di integrazione mid-point: valutazione dell'errore al crescere del numero di passi
+
+nstep:		Integrale:		discrepanza:
+
+10		2.00824840791		8.248407907975e-03
+100		2.00008224907		8.224907098642e-05
+1000		2.00000082247		8.224672676249e-07
+10000		2.00000000822		8.224676051327e-09
+100000		2.00000000008		8.225731207290e-11
+1000000		2.00000000000		8.313350008393e-13
+
+
+L'integrale definito da 0 a Pi greco è pari a: 2
