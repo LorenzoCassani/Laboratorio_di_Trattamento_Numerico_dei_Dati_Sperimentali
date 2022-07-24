@@ -1,0 +1,209 @@
+#include "lib.h"
+
+#include "TApplication.h"
+#include "TCanvas.h"
+#include "TH1F.h"
+#include "TGraph.h"
+#include "TAxis.h"
+
+using namespace std;
+
+int main(int argc, char **argv){
+
+	if(argc!=2){
+		cerr << "Usage: " << argv[0] << " <passo_di_integrazione>" << endl;
+		exit(-1);
+	}
+	double h=atof(argv[1]);
+
+	TApplication app("app",0,0);
+
+	double t=0.;	  //tempo iniziale
+	double tmax=1.;   //tempo finale
+	double x0=0.;	  //posizione iniziale
+	double v0=0.;	  //velocità iniziale
+
+	double eta=0.83;
+	double rho=2700;
+	double rho0=1250;
+	double g=9.81;
+	double R=0.02;	
+
+	int nstep = int(tmax/h+0.5); //Calcolo il numero di passi
+
+	VettoreLineare x(2);
+	x.SetComponent(0,x0); //Setta la posizione iniziale in posizione 0
+	x.SetComponent(1,v0); //Setta la velocità iniziale in posizione 1
+
+	RungeKutta myRungeKutta; //Creo il solutore di equazioni differenziali (metodo di Runge-Kutta)
+	Sfera *sfe = new Sfera(eta,rho,rho0,R); //Creo la sfera
+
+	TGraph *gr1 = new TGraph(); //Grafico posizione
+	TGraph *gr2 = new TGraph(); //Grafico errore
+
+	TPad *p1 = new TPad();
+	TPad *p2 = new TPad();
+
+	//Domanda 1:
+
+	for(int step=0; step<nstep; step++){
+		gr1->SetPoint(step,t,x.GetComponent(0));
+		gr2->SetPoint(step,t,((2/9)*((rho-rho0)/eta)*g*pow(R,2)*t)+x.GetComponent(0));
+		x = myRungeKutta.Passo(t,x,h,sfe);
+		t = t+h;
+	}
+
+	double pos = x.GetComponent(0);
+
+	cout << endl << "Posizione x all'istante t=1 s = " << pos << " m" << endl;
+
+	//Domanda 2:
+
+	double sigma1=1;  //Precisione 1 sulla misura di rho
+	double sigma2=2;  //Precisione 2 sulla misura di rho
+	double sigma3=5;  //Precisione 3 sulla misura di rho
+	double sigma4=7;  //Precisione 4 sulla misura di rho
+	double sigma5=10; //Precisione 5 sulla misura di rho
+	double sigma6=20; //Precisione 6 sulla misura di rho
+
+	Random generatore(1); //Creo il generatore di numeri casuali
+
+	generatore.SetA(1664525);    //Valore parametro a
+	generatore.SetC(1013904223); //Valore parametro c
+	generatore.SetM(pow(2,31));  //Valore parametro m
+
+	TH1F *h1 = new TH1F("#sigma_{#rho}=1" ,"Distribuzione dei valori della posizione dopo 1 s",100,pos-3*sigma1,pos+3*sigma1);
+	TH1F *h2 = new TH1F("#sigma_{#rho}=2" ,"Distribuzione dei valori della posizione dopo 1 s",100,pos-3*sigma2,pos+3*sigma2);
+	TH1F *h3 = new TH1F("#sigma_{#rho}=5" ,"Distribuzione dei valori della posizione dopo 1 s",100,pos-3*sigma3,pos+3*sigma3);
+	TH1F *h4 = new TH1F("#sigma_{#rho}=7" ,"Distribuzione dei valori della posizione dopo 1 s",100,pos-3*sigma4,pos+3*sigma4);
+	TH1F *h5 = new TH1F("#sigma_{#rho}=10","Distribuzione dei valori della posizione dopo 1 s",100,pos-3*sigma5,pos+3*sigma5);
+	TH1F *h6 = new TH1F("#sigma_{#rho}=20","Distribuzione dei valori della posizione dopo 1 s",100,pos-3*sigma6,pos+3*sigma6);
+
+	TGraph *gr3 = new TGraph(); //Grafico dipendenza errore
+
+	for(int i=0; i<1000; i++){
+
+		t=0.;
+		x.SetComponent(0,generatore.RandGauss(x0,sigma1));
+		x.SetComponent(1,v0);
+
+		for(int step=0; step<nstep; step++){
+			x = myRungeKutta.Passo(t,x,h,sfe);
+			t = t+h;
+		}
+
+		h1->Fill(x.GetComponent(0));
+	}
+
+	for(int i=0; i<1000; i++){
+
+		t=0.;
+		x.SetComponent(0,generatore.RandGauss(x0,sigma1));
+		x.SetComponent(1,v0);
+
+		for(int step=0; step<nstep; step++){
+			x = myRungeKutta.Passo(t,x,h,sfe);
+			t = t+h;
+		}
+
+		h2->Fill(x.GetComponent(0));
+	}
+
+	for(int i=0; i<1000; i++){
+
+		t=0.;
+		x.SetComponent(0,generatore.RandGauss(x0,sigma1));
+		x.SetComponent(1,v0);
+
+		for(int step=0; step<nstep; step++){
+			x = myRungeKutta.Passo(t,x,h,sfe);
+			t = t+h;
+		}
+
+		h3->Fill(x.GetComponent(0));
+	}
+
+	for(int i=0; i<1000; i++){
+
+		t=0.;
+		x.SetComponent(0,generatore.RandGauss(x0,sigma1));
+		x.SetComponent(1,v0);
+
+		for(int step=0; step<nstep; step++){
+			x = myRungeKutta.Passo(t,x,h,sfe);
+			t = t+h;
+		}
+
+		h4->Fill(x.GetComponent(0));
+	}
+
+	for(int i=0; i<1000; i++){
+
+		t=0.;
+		x.SetComponent(0,generatore.RandGauss(x0,sigma1));
+		x.SetComponent(1,v0);
+
+		for(int step=0; step<nstep; step++){
+			x = myRungeKutta.Passo(t,x,h,sfe);
+			t = t+h;
+		}
+
+		h5->Fill(x.GetComponent(0));
+	}
+
+	for(int i=0; i<1000; i++){
+
+		t=0.;
+		x.SetComponent(0,generatore.RandGauss(x0,sigma1));
+		x.SetComponent(1,v0);
+
+		for(int step=0; step<nstep; step++){
+			x = myRungeKutta.Passo(t,x,h,sfe);
+			t = t+h;
+		}
+
+		h6->Fill(x.GetComponent(0));
+	}
+
+	gr3->SetPoint(0,sigma1,h1->GetRMS());
+	gr3->SetPoint(1,sigma2,h2->GetRMS());
+	gr3->SetPoint(2,sigma3,h3->GetRMS());
+	gr3->SetPoint(3,sigma4,h4->GetRMS());
+	gr3->SetPoint(4,sigma5,h5->GetRMS());
+	gr3->SetPoint(5,sigma6,h6->GetRMS());
+
+	//Domanda 3:
+
+	TCanvas *c1 = new TCanvas("c1","c1",1000,100,2000,700);
+	c1->Divide(1,2);
+
+	c1->cd(1);
+	p1->SetGrid();
+	p1->Draw();
+	p1->cd();
+	gr1->GetXaxis()->SetTitle("t [s]");
+	gr1->GetYaxis()->SetTitle("x [m]");
+	gr1->SetTitle("Moto di una sfera in un fluido viscoso (metodo di Runge-Kutta)");
+	gr1->Draw("AL");
+
+	c1->cd(2);
+	p2->SetGrid();
+	p2->Draw();
+	p2->cd();
+	gr2->GetXaxis()->SetTitle("t [s]");
+	gr2->GetYaxis()->SetTitle("x [m]");
+	gr2->SetTitle("Errore (metodo di Runge-Kutta)");
+	gr2->Draw("AL");
+
+	TCanvas *c2 = new TCanvas("c2","c2",1000,100,2000,700);
+
+	c2->cd();
+	gr3->GetXaxis()->SetTitle("#sigma_{#rho}");
+	gr3->GetYaxis()->SetTitle("RMS");
+	gr3->SetTitle("RMS(#sigma_{#rho}) (metodo di Runge-Kutta)");
+	gr3->Draw("AL*");
+
+	app.Run();
+
+	return 0;
+}
